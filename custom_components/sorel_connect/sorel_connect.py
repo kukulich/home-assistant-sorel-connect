@@ -1,5 +1,6 @@
 from __future__ import annotations
 import aiohttp
+from abc import abstractmethod
 from datetime import timedelta
 from enum import Enum
 from homeassistant.backports.enum import StrEnum
@@ -496,8 +497,9 @@ class SorelConnectCoordinatorEntity(CoordinatorEntity):
 
 		self._update_attributes()
 
+	@abstractmethod
 	def _update_attributes(self) -> None:
-		raise NotImplementedError()
+		"""Not implemented"""
 
 	@callback
 	def _handle_coordinator_update(self) -> None:
