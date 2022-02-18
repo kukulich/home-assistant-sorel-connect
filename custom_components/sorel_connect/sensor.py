@@ -24,7 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 	entities = []
 
 	mapping = {
-		SorelConnectEntityType.TEMPERATURE: SorelConnectTemperatureEntity,
+		SorelConnectEntityType.TEMPERATURE: SorelConnectTemperatureSensorEntity,
 		SorelConnectEntityType.PERCENTAGE: SorelConnectPercentageSensorEntity,
 	}
 
@@ -46,7 +46,7 @@ class SorelConnectSensorEntity(SorelConnectCoordinatorEntity, SensorEntity):
 		self._attr_native_value = self.coordinator.data[self._entity.id]
 
 
-class SorelConnectTemperatureEntity(SorelConnectSensorEntity):
+class SorelConnectTemperatureSensorEntity(SorelConnectSensorEntity):
 
 	_attr_device_class = SensorDeviceClass.TEMPERATURE
 	_attr_native_unit_of_measurement = TEMP_CELSIUS
