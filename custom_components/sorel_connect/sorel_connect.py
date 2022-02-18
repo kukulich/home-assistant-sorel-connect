@@ -39,9 +39,9 @@ STORAGE_VERSION: Final = 1
 STORAGE_SENSORS_KEY: Final = "sensors"
 
 class SorelConnectEntityType(StrEnum):
-	TEMPERATURE = 'temperature'
-	PERCENTAGE = 'percent'
-	ON_OFF = 'on_off'
+	TEMPERATURE = "temperature"
+	PERCENTAGE = "percent"
+	ON_OFF = "on_off"
 
 
 class SorelConnectEntity:
