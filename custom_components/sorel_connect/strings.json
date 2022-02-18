@@ -1,0 +1,19 @@
+{
+	"config": {
+		"step": {
+			"user": {
+				"title": "SOREL connect",
+				"data": {
+					"id": "ID",
+					"email": "Email",
+					"password": "Password"
+				}
+			}
+		},
+		"abort": {
+			"already_configured": "Already configured",
+			"service_unavailable": "Service is not available.",
+			"invalid_credentials": "Invalid credentials."
+		}
+	}
+}

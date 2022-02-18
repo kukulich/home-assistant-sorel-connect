@@ -1,0 +1,8 @@
+{
+	"name": "SOREL connect",
+	"content_in_root": false,
+	"domains": ["binary_sensor", "sensor"],
+	"country": ["EN"],
+	"homeassistant": "2022.2.0",
+	"render_readme": false
+}
