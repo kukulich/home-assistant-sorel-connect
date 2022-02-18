@@ -26,6 +26,7 @@ from http.cookies import SimpleCookie
 import re
 from typing import Any, Dict, Final
 from .const import (
+	DEVICE_INFO,
 	DOMAIN,
 	LOGGER,
 	MAX_RELAYS,
@@ -489,6 +490,7 @@ class SorelConnectCoordinatorEntity(CoordinatorEntity):
 
 		self._entity: SorelConnectEntity = entity
 
+		self._attr_device_info = DEVICE_INFO
 		self._attr_unique_id = self._entity.unique_id
 		self._attr_name = self._entity.name
 
