@@ -1,5 +1,5 @@
 {
-	"name": "SOREL connect",
+	"name": "SOREL Connect",
 	"content_in_root": false,
 	"domains": ["binary_sensor", "sensor"],
 	"country": ["EN"],

@@ -1,4 +1,4 @@
-"""SOREL connect specific constants."""
+"""SOREL Connect specific constants."""
 from homeassistant.helpers.entity import DeviceInfo
 import logging
 from typing import Final
@@ -6,12 +6,12 @@ from typing import Final
 LOGGER: Final = logging.getLogger(__package__)
 
 DOMAIN: Final = "sorel_connect"
-NAME: Final = "SOREL connect"
+NAME: Final = "SOREL Connect"
 
 DEVICE_INFO: Final[DeviceInfo] = {
 	"identifiers": {(DOMAIN,)},
-	"model": "SOREL Connect",
-	"default_name": "SOREL Connect",
+	"model": NAME,
+	"default_name": NAME,
 	"manufacturer": NAME,
 }
 

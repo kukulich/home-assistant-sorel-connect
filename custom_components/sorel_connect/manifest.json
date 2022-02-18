@@ -1,6 +1,6 @@
 {
 	"domain": "sorel_connect",
-	"name": "SOREL connect",
+	"name": "SOREL CSonnect",
 	"version": "0.0.1",
 	"config_flow": true,
 	"dependencies": [],

@@ -1,9 +1,9 @@
-"""Errors for the SOREL connect component."""
+"""Errors for the SOREL Connect component."""
 from homeassistant.exceptions import HomeAssistantError
 
 
 class SorelConnectException(HomeAssistantError):
-	"""Base class for SOREL connect exceptions."""
+	"""Base class for SOREL Connect exceptions."""
 
 
 class ServiceUnavailable(SorelConnectException):
