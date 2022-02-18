@@ -19,6 +19,7 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 	await client.initialize()
 
 	coordinator = SorelConnectCoordinator(hass, client)
+	await coordinator.async_refresh()
 
 	hass.data[DOMAIN][config_entry.entry_id][DATA_CLIENT] = client
 	hass.data[DOMAIN][config_entry.entry_id][DATA_COORDINATOR] = coordinator
