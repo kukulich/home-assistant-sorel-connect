@@ -1,6 +1,7 @@
 from __future__ import annotations
 import aiohttp
 from datetime import timedelta
+from enum import Enum
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import (
 	CONF_ID,
@@ -42,14 +43,42 @@ class SorelConnectEntityType(StrEnum):
 	TEMPERATURE = "temperature"
 	PERCENTAGE = "percent"
 	ON_OFF = "on_off"
+	POWER = "power"
+	ENERGY = "energy"
 
 
 class SorelConnectEntity:
+
 	def __init__(self, entity_unique_id: str, entity_type: SorelConnectEntityType, entity_id: str, entity_name: str) -> None:
 		self.unique_id: str = entity_unique_id
 		self.type: SorelConnectEntityType = entity_type
 		self.id: str = entity_id
 		self.name: str = entity_name
+
+
+class SorelConnectPowerType(Enum):
+	ACTUAL = 17
+	DAY = 18
+	WEEK = 19
+	MONTH = 20
+	YEAR = 21
+	TOTAL = 22
+
+
+class SorelConnectEnergyType(StrEnum):
+	DAY = "day"
+	WEEK = "week"
+	MONTH = "month"
+	YEAR = "year"
+	TOTAL = "total"
+
+
+class SorelConnectEnergyEntity(SorelConnectEntity):
+
+	def __init__(self, entity_unique_id: str, entity_id: str, entity_name: str, energy_type: SorelConnectEnergyType) -> None:
+		super().__init__(entity_unique_id, SorelConnectEntityType.ENERGY, entity_id, entity_name)
+
+		self.energy_type: SorelConnectEnergyType = energy_type
 
 
 class SorelConnectClient:
@@ -86,12 +115,14 @@ class SorelConnectClient:
 
 		await self.login()
 		await self._detect_and_create_sensors()
+		await self._detect_and_create_power_and_energy_sensors()
 		await self._detect_and_create_relays()
 
 	async def update_data(self) -> Dict[str, StateType]:
 		await self.login()
 
 		await self._update_sensors_states()
+		await self._update_power_and_energy_sensors_states()
 		await self._update_relays_states()
 
 		return self._entities_states
@@ -115,8 +146,6 @@ class SorelConnectClient:
 		return self._stored_data
 
 	async def _detect_and_create_relays(self) -> None:
-		await self.login()
-
 		for relay_id in range(1, MAX_RELAYS + 1):
 			relay_raw_value = await self._get_relay_raw_value(relay_id)
 			if relay_raw_value is None:
@@ -173,8 +202,6 @@ class SorelConnectClient:
 		return None
 
 	async def _detect_and_create_sensors(self) -> None:
-		await self.login()
-
 		sensors_to_check = self._sensors_count if self._sensors_count is not None else MAX_SENSORS
 
 		self._sensors_count = 0
@@ -226,6 +253,83 @@ class SorelConnectClient:
 
 		return float(match.group(1))
 
+	async def _detect_and_create_power_and_energy_sensors(self) -> None:
+		for power_type in (SorelConnectPowerType.ACTUAL, SorelConnectPowerType.DAY, SorelConnectPowerType.WEEK, SorelConnectPowerType.MONTH, SorelConnectPowerType.YEAR, SorelConnectPowerType.TOTAL):
+			power_sensor_raw_value = await self._get_power_sensor_raw_value(power_type.value)
+			if power_sensor_raw_value is None:
+				break
+
+			if power_type == SorelConnectPowerType.ACTUAL:
+				self._create_entity(
+					SorelConnectEntityType.POWER,
+					self._get_entity_power_sensor_id(power_type),
+					self._get_entity_power_sensor_name(),
+					self._get_entity_value_from_power_sensor_raw_value(power_type, power_sensor_raw_value),
+				)
+			else:
+				energy_type = self._get_entity_energy_type_from_power_type(power_type)
+
+				self._create_energy_entity(
+					energy_type,
+					self._get_entity_energy_sensor_id(energy_type),
+					self._get_entity_energy_sensor_name(energy_type),
+					self._get_entity_value_from_energy_sensor_raw_value(power_type, power_sensor_raw_value),
+				)
+
+	async def _update_power_and_energy_sensors_states(self) -> None:
+		for power_type in (SorelConnectPowerType.ACTUAL, SorelConnectPowerType.DAY, SorelConnectPowerType.WEEK, SorelConnectPowerType.MONTH, SorelConnectPowerType.YEAR, SorelConnectPowerType.TOTAL):
+			power_sensor_raw_value = await self._get_power_sensor_raw_value(power_type.value)
+			if power_sensor_raw_value is None:
+				continue
+
+			if power_type == SorelConnectPowerType.ACTUAL:
+				entity_id = self._get_entity_power_sensor_id(power_type)
+				entity_value = self._get_entity_value_from_power_sensor_raw_value(power_type, power_sensor_raw_value)
+			else:
+				energy_type = self._get_entity_energy_type_from_power_type(power_type)
+				entity_id = self._get_entity_energy_sensor_id(energy_type)
+				entity_value = self._get_entity_value_from_energy_sensor_raw_value(power_type, power_sensor_raw_value)
+
+			self._entities_states[entity_id] = entity_value
+
+	async def _get_power_sensor_raw_value(self, sensor_id: int) -> StateType:
+		response = await self._logged_request(self._get_power_sensor_url(sensor_id))
+
+		return await self._get_value_from_response(response)
+
+	@staticmethod
+	def _get_entity_value_from_power_sensor_raw_value(power_type: SorelConnectPowerType, power_sensor_raw_value: str) -> StateType | None:
+		match = re.match("^(\d+(?:\.\d+)?)(k)?W($)", power_sensor_raw_value)
+
+		if match is None:
+			LOGGER.debug("Invalid value {} of power type {}".format(power_sensor_raw_value, power_type))
+			return None
+
+		value = float(match.group(1))
+
+		if match.group(2) == "k":
+			return value * 1000
+
+		return value
+
+	@staticmethod
+	def _get_entity_value_from_energy_sensor_raw_value(power_type: SorelConnectPowerType, power_sensor_raw_value: str) -> StateType | None:
+		match = re.match("^(\d+(?:\.\d+)?)([kM])?Wh($)", power_sensor_raw_value)
+
+		if match is None:
+			LOGGER.debug("Invalid value {} of energy type {}".format(power_sensor_raw_value, power_type))
+			return None
+
+		value = float(match.group(1))
+
+		if match.group(2) == "":
+			return round(value / 1000, 3)
+
+		if match.group(2) == "M":
+			return value * 1000
+
+		return value
+
 	@staticmethod
 	async def _get_value_from_response(response: aiohttp.ClientResponse) -> str | None:
 		# The URL returns "text/html" so ignore content_type check
@@ -244,18 +348,33 @@ class SorelConnectClient:
 
 		return data["response"]["val"]
 
-	def _create_entity(self, entity_type: SorelConnectEntityType, entity_id: str, entity_name: str, entity_value: StateType) -> None:
-		if entity_type not in self.entities:
-			self.entities[entity_type] = {}
+	def _create_energy_entity(self, energy_type: SorelConnectEnergyType, entity_id: str, entity_name: str, entity_value: StateType) -> None:
+		entity = SorelConnectEnergyEntity(
+			"{}.{}".format(self._config[CONF_ID], entity_id),
+			entity_id,
+			entity_name,
+			energy_type,
+		)
 
-		self.entities[entity_type][entity_id] = SorelConnectEntity(
+		self._add_entity(SorelConnectEntityType.ENERGY, entity, entity_value)
+
+	def _create_entity(self, entity_type: SorelConnectEntityType, entity_id: str, entity_name: str, entity_value: StateType) -> None:
+		entity = SorelConnectEntity(
 			"{}.{}".format(self._config[CONF_ID], entity_id),
 			entity_type,
 			entity_id,
 			entity_name,
 		)
 
-		self._entities_states[entity_id] = entity_value
+		self._add_entity(entity_type, entity, entity_value)
+
+	def _add_entity(self, entity_type: SorelConnectEntityType, entity: SorelConnectEntity, entity_value: StateType):
+		if entity_type not in self.entities:
+			self.entities[entity_type] = {}
+
+		self.entities[entity_type][entity.id] = entity
+
+		self._entities_states[entity.id] = entity_value
 
 	def _get_host(self) -> str:
 		return "{}.sorel-connect.net".format(self._config[CONF_ID])
@@ -271,6 +390,12 @@ class SorelConnectClient:
 		return "https://{}/sensors.json?id={}".format(
 			self._get_host(),
 			sensor_id,
+		)
+
+	def _get_power_sensor_url(self, power_sensor_id: int) -> str:
+		return "https://{}/heat.json?id={}".format(
+			self._get_host(),
+			power_sensor_id,
 		)
 
 	def _get_relay_url(self, relay_id: int) -> str:
@@ -304,6 +429,38 @@ class SorelConnectClient:
 	@staticmethod
 	def _get_entity_sensor_name(sensor_id: int) -> str:
 		return "Sensor {}".format(sensor_id)
+
+	@staticmethod
+	def _get_entity_power_sensor_id(power_type: SorelConnectPowerType) -> str:
+		return "power_sensor_{}".format(power_type.value)
+
+	@staticmethod
+	def _get_entity_power_sensor_name() -> str:
+		return "Actual power"
+
+	@staticmethod
+	def _get_entity_energy_sensor_id(energy_type: SorelConnectEnergyType) -> str:
+		return "energy_sensor_{}".format(energy_type.value)
+
+	@staticmethod
+	def _get_entity_energy_sensor_name(energy_type: SorelConnectEnergyType) -> str:
+		return "{} energy".format(energy_type.value[0:1].upper() + energy_type.value[1:])
+
+	@staticmethod
+	def _get_entity_energy_type_from_power_type(power_type: SorelConnectPowerType) -> SorelConnectEnergyType:
+		if power_type == SorelConnectPowerType.DAY:
+			return SorelConnectEnergyType.DAY
+
+		if power_type == SorelConnectPowerType.WEEK:
+			return SorelConnectEnergyType.WEEK
+
+		if power_type == SorelConnectPowerType.MONTH:
+			return SorelConnectEnergyType.MONTH
+
+		if power_type == SorelConnectPowerType.YEAR:
+			return SorelConnectEnergyType.YEAR
+
+		return SorelConnectEnergyType.TOTAL
 
 	@staticmethod
 	def _get_entity_relay_id(relay_id: int) -> str:
