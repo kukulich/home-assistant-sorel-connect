@@ -83,9 +83,7 @@ class SorelConnectClient:
 	async def update_data(self) -> Dict[str, StateType]:
 		await self.login()
 
-		sensors_values = await self._get_sensors_values()
-		for sensor_id in sensors_values:
-			self._entities_states[self._get_entity_sensor_id(sensor_id)] = sensors_values[sensor_id]
+		await self._update_sensors_states()
 
 		return self._entities_states
 
@@ -141,15 +139,9 @@ class SorelConnectClient:
 
 		self._entities_states[entity_sensor_id] = sensor_value
 
-	async def _get_sensors_values(self) -> Dict[int, StateType]:
-		sensors = {}
-
+	async def _update_sensors_states(self) -> None:
 		for sensor_id in range(1, self._sensors_count + 1):
-			sensor_value = await self._get_sensor_value(sensor_id)
-			if sensor_value is not None:
-				sensors[sensor_id] = sensor_value
-
-		return sensors
+			self._entities_states[self._get_entity_sensor_id(sensor_id)] = await self._get_sensor_value(sensor_id)
 
 	async def _get_sensor_value(self, sensor_id: int) -> StateType:
 		response = await self._logged_request(self._get_sensor_url(sensor_id))
