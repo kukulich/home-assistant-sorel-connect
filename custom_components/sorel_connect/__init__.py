@@ -24,10 +24,9 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 	hass.data[DOMAIN][config_entry.entry_id][DATA_CLIENT] = client
 	hass.data[DOMAIN][config_entry.entry_id][DATA_COORDINATOR] = coordinator
 
-	#for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):
-	platform = Platform.SENSOR
-	hass.async_create_task(
-		hass.config_entries.async_forward_entry_setup(config_entry, platform)
-	)
+	for platform in (Platform.BINARY_SENSOR, Platform.SENSOR):
+		hass.async_create_task(
+			hass.config_entries.async_forward_entry_setup(config_entry, platform)
+		)
 
 	return True

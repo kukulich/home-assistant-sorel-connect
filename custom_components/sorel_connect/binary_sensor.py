@@ -1,11 +1,10 @@
 from __future__ import annotations
-from homeassistant.components.sensor import (
-	SensorDeviceClass,
-	SensorEntity,
-	SensorStateClass,
+from homeassistant.components.binary_sensor import (
+	BinarySensorDeviceClass,
+	BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, TEMP_CELSIUS
+from homeassistant.const import STATE_ON
 from homeassistant.core import HomeAssistant
 from .const import (
 	DOMAIN,
@@ -24,34 +23,25 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 	entities = []
 
 	mapping = {
-		SorelConnectEntityType.TEMPERATURE: SorelConnectTemperatureEntity,
-		SorelConnectEntityType.PERCENTAGE: SorelConnectPercentageSensorEntity,
+		SorelConnectEntityType.ON_OFF: SorelConnectOnOffSensorEntity,
 	}
 
 	for entity_type, entity_class in mapping.items():
+		if entity_type not in client.entities:
+			continue
+
 		for entity in client.entities[entity_type].values():
 			entities.append(entity_class(coordinator, entity))
 
 	async_add_entities(entities)
 
 
-class SorelConnectSensorEntity(SorelConnectCoordinatorEntity, SensorEntity):
+class SorelConnectOnOffSensorEntity(SorelConnectCoordinatorEntity, BinarySensorEntity):
 
-	_attr_state_class = SensorStateClass.MEASUREMENT
+	_attr_device_class = BinarySensorDeviceClass.RUNNING
 
 	def _update_attributes(self) -> None:
 		if self.coordinator.data is None:
 			return
 
-		self._attr_native_value = self.coordinator.data[self._entity.id]
-
-
-class SorelConnectTemperatureEntity(SorelConnectSensorEntity):
-
-	_attr_device_class = SensorDeviceClass.TEMPERATURE
-	_attr_native_unit_of_measurement = TEMP_CELSIUS
-
-
-class SorelConnectPercentageSensorEntity(SorelConnectSensorEntity):
-
-	_attr_native_unit_of_measurement = PERCENTAGE
+		self._attr_is_on = self.coordinator.data[self._entity.id] == STATE_ON
