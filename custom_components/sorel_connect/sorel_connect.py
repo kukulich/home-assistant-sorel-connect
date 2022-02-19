@@ -251,7 +251,7 @@ class SorelConnectClient:
 		if value is None:
 			return None
 
-		match = re.match("^(\d+)°C$", value)
+		match = re.match("^(-?\d+)°C$", value)
 
 		return float(match.group(1))
 
