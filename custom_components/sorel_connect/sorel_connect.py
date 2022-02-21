@@ -476,7 +476,7 @@ class SorelConnectClient:
 class SorelConnectCoordinator(DataUpdateCoordinator):
 
 	def __init__(self, hass: HomeAssistant, client: SorelConnectClient) -> None:
-		super().__init__(hass, LOGGER, name=DOMAIN, update_interval=timedelta(minutes=10), update_method=self.update)
+		super().__init__(hass, LOGGER, name=DOMAIN, update_interval=timedelta(minutes=5), update_method=self.update)
 
 		self._client: SorelConnectClient = client
 
