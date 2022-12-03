@@ -2,6 +2,7 @@
 	"domain": "sorel_connect",
 	"name": "SOREL CSonnect",
 	"version": "0.0.1",
+    "integration_type": "hub",
 	"config_flow": true,
 	"dependencies": [],
 	"codeowners": ["@kukulich"],
