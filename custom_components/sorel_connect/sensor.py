@@ -7,11 +7,10 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-	ENERGY_KILO_WATT_HOUR,
-	ENERGY_MEGA_WATT_HOUR,
 	PERCENTAGE,
-	POWER_WATT,
-	TEMP_CELSIUS,
+	UnitOfEnergy,
+	UnitOfPower,
+	UnitOfTemperature
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -64,7 +63,7 @@ class SorelConnectTemperatureSensorEntity(SorelConnectSensorEntity):
 
 	_attr_state_class = SensorStateClass.MEASUREMENT
 	_attr_device_class = SensorDeviceClass.TEMPERATURE
-	_attr_native_unit_of_measurement = TEMP_CELSIUS
+	_attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
 
 class SorelConnectPercentageSensorEntity(SorelConnectSensorEntity):
@@ -76,12 +75,12 @@ class SorelConnectPowerSensorEntity(SorelConnectSensorEntity):
 
 	_attr_state_class = SensorStateClass.MEASUREMENT
 	_attr_device_class = SensorDeviceClass.POWER
-	_attr_native_unit_of_measurement = POWER_WATT
+	_attr_native_unit_of_measurement = UnitOfPower.WATT
 
 class SorelConnectEnergySensorEntity(SorelConnectSensorEntity):
 
 	_attr_device_class = SensorDeviceClass.ENERGY
-	_attr_native_unit_of_measurement = ENERGY_KILO_WATT_HOUR
+	_attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
 
 	def __init__(self, coordinator: DataUpdateCoordinator, entity: SorelConnectEnergyEntity) -> None:
 		super().__init__(coordinator, entity)
@@ -92,7 +91,7 @@ class SorelConnectEnergySensorEntity(SorelConnectSensorEntity):
 		self._attr_name = self._entity.name
 
 		self._attr_state_class = SensorStateClass.TOTAL_INCREASING if self._entity.energy_type == SorelConnectEnergyType.TOTAL else SensorStateClass.TOTAL
-		self._attr_native_unit_of_measurement = ENERGY_MEGA_WATT_HOUR if self._entity.energy_type in (SorelConnectEnergyType.TOTAL, SorelConnectEnergyType.YEAR) else ENERGY_KILO_WATT_HOUR
+		self._attr_native_unit_of_measurement = UnitOfEnergy.MEGA_WATT_HOUR if self._entity.energy_type in (SorelConnectEnergyType.TOTAL, SorelConnectEnergyType.YEAR) else UnitOfEnergy.KILO_WATT_HOUR
 
 		self._update_attributes()
 
