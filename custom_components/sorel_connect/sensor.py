@@ -70,20 +70,20 @@ class SorelConnectPercentageSensorEntity(SorelConnectSensorEntity):
 
 	_attr_state_class = SensorStateClass.MEASUREMENT
 	_attr_native_unit_of_measurement = PERCENTAGE
-	_attr_native_precision = 0
+	_attr_suggested_display_precision = 0
 
 class SorelConnectPowerSensorEntity(SorelConnectSensorEntity):
 
 	_attr_state_class = SensorStateClass.MEASUREMENT
 	_attr_device_class = SensorDeviceClass.POWER
 	_attr_native_unit_of_measurement = UnitOfPower.WATT
-	_attr_native_precision = 0
+	_attr_suggested_display_precision = 0
 
 class SorelConnectEnergySensorEntity(SorelConnectSensorEntity):
 
 	_attr_device_class = SensorDeviceClass.ENERGY
 	_attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-	_attr_native_precision = 3
+	_attr_suggested_display_precision = 3
 
 	def __init__(self, coordinator: DataUpdateCoordinator, entity: SorelConnectEnergyEntity) -> None:
 		super().__init__(coordinator, entity)
