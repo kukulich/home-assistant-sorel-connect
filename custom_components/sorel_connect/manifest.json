@@ -1,11 +1,12 @@
 {
 	"domain": "sorel_connect",
 	"name": "SOREL CSonnect",
-	"version": "0.0.2",
-    "integration_type": "hub",
+	"version": "0.0.3",
+	"integration_type": "hub",
 	"config_flow": true,
 	"dependencies": [],
 	"codeowners": ["@kukulich"],
 	"requirements": [],
 	"iot_class": "cloud_polling"
 }
+
