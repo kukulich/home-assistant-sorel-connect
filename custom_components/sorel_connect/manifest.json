@@ -1,6 +1,6 @@
 {
 	"domain": "sorel_connect",
-	"name": "SOREL CSonnect",
+	"name": "SOREL Connect",
 	"version": "0.0.3",
 	"integration_type": "hub",
 	"config_flow": true,
