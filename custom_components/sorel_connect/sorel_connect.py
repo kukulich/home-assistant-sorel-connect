@@ -2,8 +2,7 @@ from __future__ import annotations
 import aiohttp
 from abc import abstractmethod
 from datetime import timedelta
-from enum import Enum
-from homeassistant.backports.enum import StrEnum
+from enum import Enum, StrEnum
 from homeassistant.const import (
 	CONF_ID,
 	CONF_EMAIL,
