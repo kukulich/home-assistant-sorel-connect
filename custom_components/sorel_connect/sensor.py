@@ -5,7 +5,6 @@ from homeassistant.components.sensor import (
 	SensorEntity,
 	SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
 	PERCENTAGE,
 	UnitOfEnergy,
@@ -14,12 +13,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from .const import (
-	DOMAIN,
-	DATA_CLIENT,
-	DATA_COORDINATOR,
-)
+from . import SorelConnectConfigEntry
 from .sorel_connect import (
 	SorelConnectEnergyEntity,
 	SorelConnectEnergyType,
@@ -27,9 +21,9 @@ from .sorel_connect import (
 	SorelConnectEntityType,
 )
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities) -> None:
-	client = hass.data[DOMAIN][config_entry.entry_id][DATA_CLIENT]
-	coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA_COORDINATOR]
+async def async_setup_entry(hass: HomeAssistant, config_entry: SorelConnectConfigEntry, async_add_entities) -> None:
+	client = config_entry.runtime_data.client
+	coordinator = config_entry.runtime_data.coordinator
 
 	entities = []
 

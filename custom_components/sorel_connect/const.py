@@ -17,8 +17,5 @@ DEVICE_INFO: Final = DeviceInfo(
 	entry_type=DeviceEntryType.SERVICE,
 )
 
-DATA_CLIENT: Final = "client"
-DATA_COORDINATOR: Final = "coordinator"
-
 MAX_SENSORS = 10
 MAX_RELAYS = 5
