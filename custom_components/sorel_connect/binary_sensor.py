@@ -11,6 +11,7 @@ from .sorel_connect import (
 	SorelConnectEntityType,
 )
 
+
 async def async_setup_entry(hass: HomeAssistant, config_entry: SorelConnectConfigEntry, async_add_entities) -> None:
 	client = config_entry.runtime_data.client
 	coordinator = config_entry.runtime_data.coordinator

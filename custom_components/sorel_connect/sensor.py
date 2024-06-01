@@ -21,6 +21,7 @@ from .sorel_connect import (
 	SorelConnectEntityType,
 )
 
+
 async def async_setup_entry(hass: HomeAssistant, config_entry: SorelConnectConfigEntry, async_add_entities) -> None:
 	client = config_entry.runtime_data.client
 	coordinator = config_entry.runtime_data.coordinator
@@ -66,12 +67,14 @@ class SorelConnectPercentageSensorEntity(SorelConnectSensorEntity):
 	_attr_native_unit_of_measurement = PERCENTAGE
 	_attr_suggested_display_precision = 0
 
+
 class SorelConnectPowerSensorEntity(SorelConnectSensorEntity):
 
 	_attr_state_class = SensorStateClass.MEASUREMENT
 	_attr_device_class = SensorDeviceClass.POWER
 	_attr_native_unit_of_measurement = UnitOfPower.WATT
 	_attr_suggested_display_precision = 0
+
 
 class SorelConnectEnergySensorEntity(SorelConnectSensorEntity):
 
@@ -113,4 +116,3 @@ class SorelConnectEnergySensorEntity(SorelConnectSensorEntity):
 			self._attr_last_reset = today - timedelta(days=today.weekday())
 		elif self._entity.energy_type == SorelConnectEnergyType.DAY:
 			self._attr_last_reset = date.today()
-

@@ -40,6 +40,7 @@ from .errors import (
 STORAGE_VERSION: Final = 1
 STORAGE_SENSORS_KEY: Final = "sensors"
 
+
 class SorelConnectEntityType(StrEnum):
 	TEMPERATURE = "temperature"
 	PERCENTAGE = "percent"
@@ -180,10 +181,10 @@ class SorelConnectClient:
 
 	@staticmethod
 	def _detect_entity_type_from_relay_value(relay_id: int, relay_raw_value: str) -> SorelConnectEntityType | None:
-		if re.match("^\d+_(OFF|ON)$", relay_raw_value):
+		if re.match("^\\d+_(OFF|ON)$", relay_raw_value):
 			return SorelConnectEntityType.ON_OFF
 
-		if re.match("^(\d+)_(\d+)%$", relay_raw_value):
+		if re.match("^(\\d+)_(\\d+)%$", relay_raw_value):
 			return SorelConnectEntityType.PERCENTAGE
 
 		LOGGER.debug("Unknown type of relay {}: {}", relay_id, relay_raw_value)
@@ -191,11 +192,11 @@ class SorelConnectClient:
 
 	@staticmethod
 	def _get_entity_value_from_relay_value(relay_id: int, relay_raw_value: str) -> StateType | None:
-		on_off_match = re.match("^\d+_(OFF|ON)$", relay_raw_value)
+		on_off_match = re.match("^\\d+_(OFF|ON)$", relay_raw_value)
 		if on_off_match:
 			return STATE_ON if on_off_match.group(1) == "ON" else STATE_OFF
 
-		percent_match = re.match("^\d+_(\d+)%$", relay_raw_value)
+		percent_match = re.match("^\\d+_(\\d+)%$", relay_raw_value)
 		if percent_match:
 			return float(percent_match.group(1))
 
@@ -250,7 +251,7 @@ class SorelConnectClient:
 		if value is None:
 			return None
 
-		match = re.match("^(-?\d+)°C$", value)
+		match = re.match("^(-?\\d+)°C$", value)
 
 		return float(match.group(1))
 
@@ -300,7 +301,7 @@ class SorelConnectClient:
 
 	@staticmethod
 	def _get_entity_value_from_power_sensor_raw_value(power_type: SorelConnectPowerType, power_sensor_raw_value: str) -> StateType | None:
-		match = re.match("^(\d+(?:\.\d+)?)(k)?W($)", power_sensor_raw_value)
+		match = re.match("^(\\d+(?:\\.\\d+)?)(k)?W($)", power_sensor_raw_value)
 
 		if match is None:
 			LOGGER.debug("Invalid value {} of power type {}".format(power_sensor_raw_value, power_type))
@@ -315,7 +316,7 @@ class SorelConnectClient:
 
 	@staticmethod
 	def _get_entity_value_from_energy_sensor_raw_value(power_type: SorelConnectPowerType, power_sensor_raw_value: str) -> StateType | None:
-		match = re.match("^(\d+(?:\.\d+)?)([kM])?Wh($)", power_sensor_raw_value)
+		match = re.match("^(\\d+(?:\\.\\d+)?)([kM])?Wh($)", power_sensor_raw_value)
 
 		if match is None:
 			LOGGER.debug("Invalid value {} of energy type {}".format(power_sensor_raw_value, power_type))

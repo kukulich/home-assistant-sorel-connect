@@ -19,6 +19,7 @@ from .errors import (
 )
 from .sorel_connect import SorelConnectClient
 
+
 class SorelConnectConfigFlow(ConfigFlow, domain=DOMAIN):
 	async def async_step_user(self, user_input: Dict[str, Any] | None = None) -> Dict[str, Any]:
 		errors = {}
