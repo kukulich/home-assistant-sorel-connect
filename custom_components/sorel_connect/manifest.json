@@ -1,7 +1,7 @@
 {
 	"domain": "sorel_connect",
 	"name": "SOREL Connect",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"integration_type": "hub",
 	"config_flow": true,
 	"dependencies": [],
